@@ -1,0 +1,189 @@
+classDiagram
+direction TB
+    class Publishable {
+	    +publish() void
+	    +unpublish() void
+	    +isPublished() boolean
+    }
+
+    class Categorizable {
+	    +addCategory(Category category) void
+	    +removeCategory(Category category) void
+	    +getCategories() List~Category~
+    }
+
+    class Searchable {
+	    +search(String criteria) List~Content~
+	    +filter(String type) List~Content~
+    }
+
+    class CMSView {
+	    +displayContent(Content content) void
+	    +displayContentList(List~Content~ contents) void
+	    +displayMessage(String message) void
+	    +getUserInput(String prompt) String
+    }
+
+    class Content {
+	    #int id
+	    #String title
+	    #String author
+	    #Date creationDate
+	    #Date lastModified
+	    #boolean published
+	    #List~Category~ categories
+	    +Content(String title, String author)
+	    +getId() int
+	    +getTitle() String
+	    +setTitle(String title) void
+	    +getAuthor() String
+	    +getCreationDate() Date
+	    +setLastModified(Date date) void
+	    +addCategory(Category category) void
+	    +removeCategory(Category category) void
+	    +getCategories() List~Category~
+	    +display() String*
+	    +validate() boolean*
+    }
+
+    class Article {
+	    -String bodyText
+	    -int wordCount
+	    +Article(String title, String author, String bodyText)
+	    +getBodyText() String
+	    +setBodyText(String bodyText) void
+	    +getWordCount() int
+	    +display() String
+	    +validate() boolean
+	    +publish() void
+	    +unpublish() void
+	    +isPublished() boolean
+    }
+
+    class Video {
+	    -String videoUrl
+	    -int duration
+	    -String resolution
+	    +Video(String title, String author, String videoUrl)
+	    +getVideoUrl() String
+	    +setVideoUrl(String videoUrl) void
+	    +getDuration() int
+	    +setDuration(int duration) void
+	    +getResolution() String
+	    +setResolution(String resolution) void
+	    +display() String
+	    +validate() boolean
+	    +publish() void
+	    +unpublish() void
+	    +isPublished() boolean
+    }
+
+    class Image {
+	    -String imageUrl
+	    -String altText
+	    -String dimensions
+	    +Image(String title, String author, String imageUrl)
+	    +getImageUrl() String
+	    +setImageUrl(String imageUrl) void
+	    +getAltText() String
+	    +setAltText(String altText) void
+	    +getDimensions() String
+	    +setDimensions(String dimensions) void
+	    +display() String
+	    +validate() boolean
+	    +publish() void
+	    +unpublish() void
+	    +isPublished() boolean
+    }
+
+    class Category {
+	    -int id
+	    -String name
+	    -String description
+	    +Category(String name, String description)
+	    +getId() int
+	    +getName() String
+	    +setName(String name) void
+	    +getDescription() String
+	    +setDescription(String description) void
+    }
+
+    class ContentModel {
+	    -List~Content~ contents
+	    -int nextId
+	    +ContentModel()
+	    +addContent(Content content) void
+	    +removeContent(int id) void
+	    +updateContent(int id, Content content) void
+	    +getContent(int id) Content
+	    +getAllContents() List~Content~
+	    +searchContents(String criteria) List~Content~
+	    +filter(String type) List~Content~
+    }
+
+    class ContentController {
+	    -ContentModel model
+	    -CMSView view
+	    +ContentController(ContentModel model, CMSView view)
+	    +createContent(Content content) void
+	    +editContent(int id, Content updatedContent) void
+	    +deleteContent(int id) void
+	    +publishContent(int id) void
+	    +searchContent(String criteria) void
+	    +filterContent(String type, String category) void
+	    +listAllContent() void
+    }
+
+    class UserController {
+	    -CMSView view
+	    -User currentUser
+	    +UserController(CMSView view)
+	    +authenticateUser(String username, String password) User
+	    +createUser(User user) void
+	    +updateUser(User user) void
+	    +deleteUser(int id) void
+	    +getCurrentUser() User
+    }
+
+    class ReportController {
+	    -CMSView view
+	    +ReportController(CMSView view)
+	    +generateReport(String type, Date startDate, Date endDate) Report
+	    +exportReport(Report report, String format) void
+    }
+
+    class ConsoleView {
+	    -Scanner scanner
+	    +ConsoleView()
+	    +displayContent(Content content) void
+	    +displayContentList(List~Content~ contents) void
+	    +displayMessage(String message) void
+	    +getUserInput(String prompt) String
+    }
+
+	<<interface>> Publishable
+	<<interface>> Categorizable
+	<<interface>> Searchable
+	<<interface>> CMSView
+	<<abstract>> Content
+
+	note for Content "Clase abstracta base\nImplementa Categorizable\nDefine métodos abstractos\ndisplay() y validate()"
+	note for Publishable "Interfaz para polimorfismo\nPermite publicar/despublicar\ncontenidos de manera uniforme"
+	note for ContentController "Demuestra polimorfismo\nen publishContent() usando\ninstanceof Publishable"
+
+    Content <|-- Article : extends
+    Content <|-- Video : extends
+    Content <|-- Image : extends
+    Publishable <|.. Article : implements
+    Publishable <|.. Video : implements
+    Publishable <|.. Image : implements
+    Categorizable <|.. Content : implements
+    Searchable <|.. ContentModel : implements
+    CMSView <|.. ConsoleView : implements
+    Content "1" *-- "*" Category : contains
+    ContentController "1" --> "1" ContentModel : uses
+    ContentController "1" --> "1" CMSView : uses
+    UserController "1" --> "1" CMSView : uses
+    ReportController "1" --> "1" CMSView : uses
+    ContentModel "1" o-- "*" Content : manages
+
